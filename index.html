@@ -379,7 +379,7 @@ Ace Jerald Tajores`;
             // 6. Wait 1 second (Target: 1000ms)
             await new Promise(resolve => setTimeout(resolve, 400));
             
-            // 7. Replace with Rick Roll video
+            // 7. Replace with Rick Roll video and add editable placeholder
             animationContainer.innerHTML = `
                 <iframe 
                     width="100%" 
@@ -389,8 +389,15 @@ Ace Jerald Tajores`;
                     frameborder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                     allowfullscreen
-                    class="rounded-lg shadow-xl"
+                    class="rounded-lg shadow-xl mb-6"
                 ></iframe>
+                <div 
+                    id="editablePlaceholder" 
+                    contenteditable="false"
+                    class="w-full p-4 mt-6 bg-gray-50 border border-gray-300 rounded-lg text-gray-700 text-base leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px] hover:shadow-md transition"
+                >
+                    ✌🏼✌🏼✌🏼 and shhhhh 🤫🤫🤫. lablab
+                </div>
             `;
             // Adjust container style to better fit the iframe
             animationContainer.classList.remove('min-h-[250px]'); 
