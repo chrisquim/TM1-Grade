@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fuzzy Match Autocomplete</title>
+    <title>🔥 TM1 Final Grade</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -49,27 +49,27 @@
 <body class="min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md bg-white rounded-xl shadow-2xl p-6 md:p-8">
         <h1 class="text-3xl font-bold text-gray-800 mb-2 text-center" id="headerTitle">
-            Smart Name Autocomplete
+            🔥 TM1 Final Grade 🔥
         </h1>
         <p class="text-gray-600 mb-6 text-center h-12 flex items-center justify-center" id="descriptionParagraph">
-            Start typing a name. The system will search for a match, ignoring word order.
+            Enter your name to check your grade.
         </p>
 
         <!-- Search Input Field -->
         <div class="mb-4" id="inputContainer">
-            <label for="nameInput" class="block text-sm font-medium text-gray-700 mb-1">Enter Name (Alphabets & Spaces Only)</label>
+            <label for="nameInput" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
             <input
                 type="text"
                 id="nameInput"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-lg uppercase transition duration-150 ease-in-out"
-                placeholder="Type name here..."
+                placeholder="Firstname Lastname"
                 autocomplete="off"
             >
         </div>
 
         <!-- Match Status / Result Display -->
         <div id="matchStatus" class="mb-6 h-10 flex items-center justify-center text-sm font-medium rounded-lg px-3 py-2 bg-blue-100 text-blue-700">
-            Start typing to search...
+            
         </div>
 
         <!-- Action Button (Hidden by default) -->
@@ -85,7 +85,6 @@
         <div id="animationContainer" class="hidden flex flex-col items-center justify-center min-h-[250px] text-center w-full">
              <div id="animationNumber" class="text-gray-900">0.0</div>
         </div>
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?si=PHQqAjdoenI40Bc_&amp;controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
     </div>
 
     <script>
@@ -238,10 +237,10 @@ Ace Jerald Tajores`;
 
         // The labels for the sequential button clicks
         const LABELS = [
-            "label 1",
-            "label 2",
-            "label 3",
-            "last label reveal"
+            "Reveal My Grade. Bahala na ni! 🙏🏼",
+            "Sure na jud ka? 😱",
+            "Ready naka sa result? 🫣",
+            "Tarung ba, pwede pa mu exit. 🙈"
         ];
 
         // --- Core Fuzzy Matching Logic ---
@@ -351,23 +350,23 @@ Ace Jerald Tajores`;
             // --- Animation Steps ---
             
             // Step 1: 0.0 to 96.0 (7 seconds)
-            await animateValue(0.0, 96.0, 7000);
-            
+            await animateValue(0.0, 96.0, 7500);
+            await animateValue(96.0, 96.0, 300);
             // Step 2: 96.0 to 69.0 (6 seconds)
-            await animateValue(96.0, 69.0, 6000);
-            
+            await animateValue(96.0, 69.0, 5000);
+            await animateValue(69.0, 69.0, 1050);            
             // Step 3: 69.0 to 87.6 (5 seconds)
-            await animateValue(69.0, 87.6, 5000);
-
+            await animateValue(69.0, 79.9, 5500);
+            await animateValue(79.9, 79.9, 950);
             // Step 4: 87.6 to 70.1 (4 seconds)
-            await animateValue(87.6, 70.1, 4000);
-            
+            await animateValue(79.9, 70.1, 6000);
+            await animateValue(70.1, 70.1, 800);
             // Step 5: 70.1 to 74.4 (3 seconds) and slowly fades to gray
             animationNumber.style.color = '#6b7280'; // Target color: gray-500
-            await animateValue(70.1, 74.4, 3000);
+            await animateValue(70.1, 74.4, 8500);
 
             // 6. Wait 1 second
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 400));
             
             // 7. Replace with Rick Roll video
             animationContainer.innerHTML = `
@@ -407,7 +406,7 @@ Ace Jerald Tajores`;
 
             // Reset logic if input is cleared or reset
             if (rawQuery.length === 0) {
-                matchStatus.textContent = 'Start typing to search...';
+                matchStatus.textContent = '';
                 matchStatus.className = 'mb-6 h-10 flex items-center justify-center text-sm font-medium rounded-lg px-3 py-2 bg-blue-100 text-blue-700';
                 actionButton.classList.add('hidden');
                 inputField.disabled = false;
@@ -427,7 +426,7 @@ Ace Jerald Tajores`;
                 inputField.classList.add('locked-input'); // ADD LOCK STYLE
 
                 // Show success status
-                matchStatus.textContent = 'Unique match found and locked!';
+                matchStatus.textContent = 'Record found';
                 matchStatus.className = 'mb-6 h-10 flex items-center justify-center text-sm font-medium rounded-lg px-3 py-2 bg-green-100 text-green-700 font-bold';
 
                 // Reveal and enable the button
@@ -438,14 +437,14 @@ Ace Jerald Tajores`;
 
             } else if (matchCount > 1) {
                 // Multiple matches
-                matchStatus.textContent = `${matchCount} potential matches remaining. Keep typing...`;
+                matchStatus.textContent = `${matchCount} records match. Keep typing...`;
                 matchStatus.className = 'mb-6 h-10 flex items-center justify-center text-sm font-medium rounded-lg px-3 py-2 bg-orange-100 text-orange-700';
                 actionButton.classList.add('hidden');
                 inputField.disabled = false;
                 inputField.classList.remove('locked-input'); // Remove lock style
             } else {
                 // No matches
-                matchStatus.textContent = `No matches found for "${rawQuery}"`;
+                matchStatus.textContent = ``;
                 matchStatus.className = 'mb-6 h-10 flex items-center justify-center text-sm font-medium rounded-lg px-3 py-2 bg-red-100 text-red-700';
                 actionButton.classList.add('hidden');
                 inputField.disabled = false;
@@ -465,7 +464,7 @@ Ace Jerald Tajores`;
             } else {
                 // This is the trigger for the final sequence (after 'last label reveal')
                 actionButton.disabled = true; 
-                actionButton.textContent = 'Starting Sequence...';
+                actionButton.textContent = '';
                 startFinalSequence();
             }
         }
