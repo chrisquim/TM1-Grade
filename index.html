@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fuzzy Match Autocomplete</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+        }
+        /* Custom styling for the button effect */
+        #actionButton {
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        }
+        #actionButton:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3), 0 4px 6px -4px rgba(37, 99, 235, 0.1);
+        }
+        #actionButton:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* New: Style for locked input field (gray background and bold text) */
+        .locked-input {
+            background-color: #f3f4f6 !important; /* light gray background */
+            font-weight: 600 !important; /* semi-bold text */
+            color: #4b5563 !important; /* dark gray text */
+            pointer-events: none; /* Ensure no interaction even if not disabled */
+        }
+
+        /* New: Style for the big number animation */
+        #animationNumber {
+            font-size: 6rem; /* Large text */
+            line-height: 1;
+            font-weight: 700;
+            color: #1f2937; /* Initial color: dark gray */
+            /* Add color transition for the fade-to-gray effect in the last step */
+            transition: color 3s linear; 
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-xl shadow-2xl p-6 md:p-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2 text-center" id="headerTitle">
+            Smart Name Autocomplete
+        </h1>
+        <p class="text-gray-600 mb-6 text-center h-12 flex items-center justify-center" id="descriptionParagraph">
+            Start typing a name. The system will search for a match, ignoring word order.
+        </p>
+
+        <!-- Search Input Field -->
+        <div class="mb-4" id="inputContainer">
+            <label for="nameInput" class="block text-sm font-medium text-gray-700 mb-1">Enter Name (Alphabets & Spaces Only)</label>
+            <input
+                type="text"
+                id="nameInput"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-lg uppercase transition duration-150 ease-in-out"
+                placeholder="Type name here..."
+                autocomplete="off"
+            >
+        </div>
+
+        <!-- Match Status / Result Display -->
+        <div id="matchStatus" class="mb-6 h-10 flex items-center justify-center text-sm font-medium rounded-lg px-3 py-2 bg-blue-100 text-blue-700">
+            Start typing to search...
+        </div>
+
+        <!-- Action Button (Hidden by default) -->
+        <button
+            id="actionButton"
+            class="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-400 focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-150 ease-in-out hidden"
+            disabled
+        >
+            label 1
+        </button>
+
+        <!-- New: Animation Container (Hidden by default) -->
+        <div id="animationContainer" class="hidden flex flex-col items-center justify-center min-h-[250px] text-center w-full">
+             <div id="animationNumber" class="text-gray-900">0.0</div>
+        </div>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?si=PHQqAjdoenI40Bc_&amp;controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+
+    <script>
+        // --- Configuration and Data Setup ---
+
+        const NAME_LIST_RAW = `Kent Andre Manonggal
+Brantdon Binalangbang
+Glen Jay Ilawa
+Samantha Pearl Jumawan
+Lourence Asis
+Devie Pacis
+Mc Trelline Rioper Cornites
+Rosemarie Encluna
+Irene Mahumas
+John Carlo Jose
+Mark Laurence Basilio
+Jessthony Capangyarihan
+Chloe Star Keziah Villanueva
+Tj Khyll Abatayo
+Sunshine Degamo
+Moises Dave Panes
+Marry Vane Pandian
+Zhaira Mae Baliguat
+John Lee Warren Hinampas
+Milben Lanos
+Princess Ann Burdios
+Jireh Layson
+Mae Sajor
+Mark Onie Vince Baitan
+Fritz Denzel Eian Ramada
+Carl Reymark Jude Tandingan
+Christine Mae Jacobe
+Robert Picar
+Jhasmine Soromia
+Kheisha Vheneece Rodriguez
+Domirick Ivan Baybayon
+Sheryn Ybañez
+Henzho Entero
+Ralf Francis Enrera
+Aljedalyn Luganao
+Amanda Zoea Pacatang Doro-On
+CJ Ang
+James Orgel
+Samm Andre Salem
+Lady Nichole Imafe Salonga
+Lee Alfritz Baldapan
+Chester John Mehoy
+Jhon Delmar Alaba
+Genara Gene Ampoloquio
+Najer Ambulo
+James Dhin Aparece
+Jay Hann Lloyd Apelo
+Mervin Aringoy
+Jayson Benemerito
+Joseryll Lloyd Besorio
+Leandro Gian Bonga
+Marc Lloyd Damasco
+Maiko Abel Grafilo
+Kinneth Hilamon
+Jovic Jr. Ladera
+Axel Meenard Lulu
+Kurt Miguel
+Colin Joshua Navarro
+Prince Harrelson Pernito
+Marfjhun Peroso
+Ronamor Baigtu
+Alyza Joyce Bohol
+Karlyn Rhyme Cacayan
+Althea Amor Madelo
+Dwen Jodimary Oliverio
+Kurt Razel Pinili
+Jessa Beth Rebaja
+Crissan Jenn Rojero
+Cute Princess Tonog
+Abegail Vergara
+Elizer Bacorio
+Lorenzo Antonio Ballesteros
+Mark Charles Casipe
+Kent Dalanan
+Aljon Dela Peña
+Charles Stephen Faller
+Kero Neil Fuentes
+Daryl Sam Gastardo
+Nathaniel Mellomida
+Joe Benz Perias
+Rue Jay Retutas
+John Raoul Sarenas
+Matt Clarence Cabal
+Kathleen Romanillos
+Justin Royce Jose
+Frenzy Silvido
+Princess Nietszcheanney Obeso
+Christian Orjaleza
+Christian Jay Suaybaguio
+Jemvi Jhane Sangian
+Joyce Tabaquin
+Dolly Rose Nollas
+Jared Jones Medina
+Randolf Gulle
+Marvin Jay Badayos
+Icy Calabio
+Trisha Mae Cahapay
+Mary Manel Bandiola
+Aira Milky Jane Martinez
+Erich Sugarol
+James Rafael Amores
+Zyanne Peralta
+Alexia Faith Montibon
+Abbygail Jane Santillan
+Jean Oringin
+Liza Mae Lumpong
+Josue Cyril Dulay
+Jhulls Bathalon
+Vince Marial
+Sheena Joy Migrino
+Remark Peñaranda
+Chyna Momblanco
+Roxane Timtim
+Mary Claire Caños
+Lj Morales
+Aj Clarence Guitones
+Fritz Cedrick Dalay
+Ruzelle Jullz Edpalina
+John Renz Alayon
+Janelle Butalid
+Myra Generosa
+Daiichi June Labastida
+Hideyuki Kuribayashi
+Paula Janson
+Pheona Mae Gasco
+Marc Giffen Aringoy
+Reynald Jr. Linasa
+Stephanie Corbella
+Brylle Antoque
+Althea Loisse Dairo
+Kenneth Ignalig
+Ace Jerald Tajores`;
+
+        const nameList = NAME_LIST_RAW.split('\n').map(name => name.trim()).filter(name => name.length > 0);
+        const inputField = document.getElementById('nameInput');
+        const matchStatus = document.getElementById('matchStatus');
+        const actionButton = document.getElementById('actionButton');
+        const inputContainer = document.getElementById('inputContainer');
+        const animationContainer = document.getElementById('animationContainer');
+        const descriptionParagraph = document.getElementById('descriptionParagraph');
+        const animationNumber = document.getElementById('animationNumber');
+        
+        let buttonState = 0; // 0 = hidden, 1 = label 1, 2 = label 2, 3 = label 3, 4 = last label
+        const RICK_ROLL_URL = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0&showinfo=0&rel=0";
+
+        // The labels for the sequential button clicks
+        const LABELS = [
+            "label 1",
+            "label 2",
+            "label 3",
+            "last label reveal"
+        ];
+
+        // --- Core Fuzzy Matching Logic ---
+
+        /**
+         * Cleans and tokenizes a name or query for comparison.
+         * @param {string} text - The input text (name or query).
+         * @returns {string} A space-separated, sorted, and cleaned string of words.
+         */
+        function prepareText(text) {
+            return text
+                .toUpperCase()
+                .replace(/[^A-Z\s]/g, '')
+                .trim()
+                .split(/\s+/)
+                .filter(word => word.length > 0)
+                .sort()
+                .join(' ');
+        }
+
+        /**
+         * Performs the fuzzy match based on the prepared, sorted word tokens.
+         * @param {string} rawQuery - The raw text input by the user.
+         * @returns {string[]} An array of matching names from the nameList.
+         */
+        function doFuzzyMatch(rawQuery) {
+            if (!rawQuery.trim()) {
+                return [];
+            }
+
+            const preparedQuery = prepareText(rawQuery);
+            if (!preparedQuery) {
+                 return [];
+            }
+
+            const queryWords = preparedQuery.split(' ');
+
+            return nameList.filter(name => {
+                const preparedName = prepareText(name);
+                const nameWords = preparedName.split(' ');
+
+                // Check if ALL query words exist within the name words (fuzzy match)
+                return queryWords.every(qWord => nameWords.includes(qWord));
+            });
+        }
+
+        // --- Animation Logic ---
+        
+        /**
+         * Custom ease-out function for "momentum" (start fast, slow down).
+         * @param {number} t - Time elapsed normalized (0 to 1).
+         * @returns {number} Eased value.
+         */
+        function easeOutQuad(t) {
+            return t * (2 - t);
+        }
+
+        /**
+         * Animates a number value over a duration using requestAnimationFrame.
+         * @param {number} startValue - The starting number.
+         * @param {number} endValue - The ending number.
+         * @param {number} duration - Duration in milliseconds.
+         * @returns {Promise<void>} A Promise that resolves when the animation is complete.
+         */
+        function animateValue(startValue, endValue, duration) {
+            return new Promise(resolve => {
+                const startTime = performance.now();
+                const diff = endValue - startValue;
+
+                function step(currentTime) {
+                    const elapsedTime = currentTime - startTime;
+                    const normalizedTime = Math.min(elapsedTime / duration, 1);
+                    const easedTime = easeOutQuad(normalizedTime); 
+
+                    const currentValue = startValue + diff * easedTime;
+                    animationNumber.textContent = currentValue.toFixed(1);
+
+                    if (normalizedTime < 1) {
+                        requestAnimationFrame(step);
+                    } else {
+                        // Ensure it hits the exact end value
+                        animationNumber.textContent = endValue.toFixed(1);
+                        resolve();
+                    }
+                }
+                requestAnimationFrame(step);
+            });
+        }
+        
+        /**
+         * Executes the multi-step number animation and the final Rick Roll reveal.
+         */
+        async function startFinalSequence() {
+            // 1. UI changes: Replace paragraph and hide elements
+            descriptionParagraph.textContent = inputField.value;
+            inputContainer.classList.add('hidden');
+            matchStatus.classList.add('hidden');
+            actionButton.classList.add('hidden');
+            
+            // Show the animation container
+            animationContainer.classList.remove('hidden');
+            animationNumber.style.color = '#1f2937'; // Initial color reset
+            
+            // Reset opacity (for safety, though not strictly needed here)
+            animationNumber.style.opacity = 1; 
+
+            // --- Animation Steps ---
+            
+            // Step 1: 0.0 to 96.0 (7 seconds)
+            await animateValue(0.0, 96.0, 7000);
+            
+            // Step 2: 96.0 to 69.0 (6 seconds)
+            await animateValue(96.0, 69.0, 6000);
+            
+            // Step 3: 69.0 to 87.6 (5 seconds)
+            await animateValue(69.0, 87.6, 5000);
+
+            // Step 4: 87.6 to 70.1 (4 seconds)
+            await animateValue(87.6, 70.1, 4000);
+            
+            // Step 5: 70.1 to 74.4 (3 seconds) and slowly fades to gray
+            animationNumber.style.color = '#6b7280'; // Target color: gray-500
+            await animateValue(70.1, 74.4, 3000);
+
+            // 6. Wait 1 second
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // 7. Replace with Rick Roll video
+            animationContainer.innerHTML = `
+                <iframe 
+                    width="100%" 
+                    height="315" 
+                    src="${RICK_ROLL_URL}"
+                    title="YouTube video player" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen
+                    class="rounded-lg shadow-xl"
+                ></iframe>
+            `;
+            // Adjust container style to better fit the iframe
+            animationContainer.classList.remove('min-h-[250px]'); 
+            animationContainer.classList.add('p-0'); 
+        }
+
+
+        // --- UI & Event Handlers ---
+
+        /**
+         * Handles the input event for fuzzy searching and UI updates.
+         */
+        function handleInput() {
+            // 1. Enforce Uppercase and Alphabet/Space only
+            const sanitizedValue = inputField.value
+                .toUpperCase()
+                .replace(/[^A-Z\s]/g, '');
+            inputField.value = sanitizedValue;
+
+            // 2. Perform Search
+            const rawQuery = inputField.value;
+            const matches = doFuzzyMatch(rawQuery);
+            const matchCount = matches.length;
+
+            // Reset logic if input is cleared or reset
+            if (rawQuery.length === 0) {
+                matchStatus.textContent = 'Start typing to search...';
+                matchStatus.className = 'mb-6 h-10 flex items-center justify-center text-sm font-medium rounded-lg px-3 py-2 bg-blue-100 text-blue-700';
+                actionButton.classList.add('hidden');
+                inputField.disabled = false;
+                inputField.classList.remove('locked-input'); // Remove lock style
+                buttonState = 0;
+                actionButton.textContent = LABELS[0]; // Reset label
+                return;
+            }
+
+            // 3. Update UI based on matches
+            if (matchCount === 1) {
+                const singleMatch = matches[0];
+
+                // Autofill and lock
+                inputField.value = singleMatch.toUpperCase();
+                inputField.disabled = true;
+                inputField.classList.add('locked-input'); // ADD LOCK STYLE
+
+                // Show success status
+                matchStatus.textContent = 'Unique match found and locked!';
+                matchStatus.className = 'mb-6 h-10 flex items-center justify-center text-sm font-medium rounded-lg px-3 py-2 bg-green-100 text-green-700 font-bold';
+
+                // Reveal and enable the button
+                actionButton.classList.remove('hidden');
+                actionButton.disabled = false;
+                buttonState = 1; 
+                actionButton.textContent = LABELS[0]; 
+
+            } else if (matchCount > 1) {
+                // Multiple matches
+                matchStatus.textContent = `${matchCount} potential matches remaining. Keep typing...`;
+                matchStatus.className = 'mb-6 h-10 flex items-center justify-center text-sm font-medium rounded-lg px-3 py-2 bg-orange-100 text-orange-700';
+                actionButton.classList.add('hidden');
+                inputField.disabled = false;
+                inputField.classList.remove('locked-input'); // Remove lock style
+            } else {
+                // No matches
+                matchStatus.textContent = `No matches found for "${rawQuery}"`;
+                matchStatus.className = 'mb-6 h-10 flex items-center justify-center text-sm font-medium rounded-lg px-3 py-2 bg-red-100 text-red-700';
+                actionButton.classList.add('hidden');
+                inputField.disabled = false;
+                inputField.classList.remove('locked-input'); // Remove lock style
+            }
+        }
+
+        /**
+         * Handles the sequential label changing on the action button.
+         */
+        function handleButtonClick() {
+            // Check if we are still within the standard label sequence
+            if (buttonState < LABELS.length) {
+                const nextLabelIndex = buttonState; 
+                actionButton.textContent = LABELS[nextLabelIndex];
+                buttonState++;
+            } else {
+                // This is the trigger for the final sequence (after 'last label reveal')
+                actionButton.disabled = true; 
+                actionButton.textContent = 'Starting Sequence...';
+                startFinalSequence();
+            }
+        }
+
+
+        // --- Initialization ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Attach event listeners
+            inputField.addEventListener('input', handleInput);
+            actionButton.addEventListener('click', handleButtonClick);
+
+            // Initial check to ensure the state is correct on load
+            handleInput();
+
+            // Set initial button label
+            actionButton.textContent = LABELS[0];
+        });
+
+    </script>
+</body>
+</html>
